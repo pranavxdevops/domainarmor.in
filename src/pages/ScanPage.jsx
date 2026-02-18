@@ -440,47 +440,76 @@ export default function ScanPage() {
                     <div className="mt-6">
                         <RecordSection title="Registrar Information" icon={icons.globe}>
                             {results.registrar && (results.registrar.name || results.registrar.createdDate) ? (
-                                <div className="p-3 rounded-xl bg-surface-800/50 border border-surface-700/30 space-y-2 text-sm">
-                                    {results.registrar.name && (
-                                        <div className="flex justify-between gap-4">
-                                            <span className="text-surface-400 shrink-0">Registrar</span>
-                                            {results.registrar.url ? (
-                                                <a href={results.registrar.url.startsWith('http') ? results.registrar.url : `https://${results.registrar.url}`} target="_blank" rel="noopener noreferrer" className="text-brand-400 hover:text-brand-300 font-mono text-xs text-right transition-colors">{results.registrar.name}</a>
-                                            ) : (
-                                                <code className="text-surface-200 font-mono text-xs text-right">{results.registrar.name}</code>
-                                            )}
-                                        </div>
-                                    )}
-                                    {results.registrar.ianaId && (
-                                        <div className="flex justify-between gap-4"><span className="text-surface-400 shrink-0">IANA ID</span><code className="text-surface-200 font-mono text-xs">{results.registrar.ianaId}</code></div>
-                                    )}
-                                    {results.registrar.createdDate && (
-                                        <div className="flex justify-between gap-4"><span className="text-surface-400 shrink-0">Created</span><code className="text-surface-200 font-mono text-xs">{new Date(results.registrar.createdDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</code></div>
-                                    )}
-                                    {results.registrar.updatedDate && (
-                                        <div className="flex justify-between gap-4"><span className="text-surface-400 shrink-0">Updated</span><code className="text-surface-200 font-mono text-xs">{new Date(results.registrar.updatedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</code></div>
-                                    )}
-                                    {results.registrar.dnssec && (
-                                        <div className="flex justify-between gap-4">
-                                            <span className="text-surface-400 shrink-0">DNSSEC</span>
-                                            <span className={`text-xs font-semibold ${results.registrar.dnssec.toLowerCase().includes('unsigned') ? 'text-amber-400' : 'text-emerald-400'}`}>{results.registrar.dnssec}</span>
-                                        </div>
-                                    )}
-                                    {results.registrar.status && (
-                                        <div className="pt-2 mt-2 border-t border-surface-700/30">
-                                            <span className="text-surface-400 text-xs block mb-2">Domain Status</span>
-                                            <div className="flex flex-wrap gap-1.5">
-                                                {(Array.isArray(results.registrar.status) ? results.registrar.status : [results.registrar.status]).map((s, i) => {
-                                                    const label = typeof s === 'string' ? s.split(' ')[0].replace(/.*\//, '') : s;
-                                                    return <span key={i} className="px-2 py-0.5 rounded-md bg-surface-700/50 text-surface-300 text-xs font-mono">{label}</span>;
-                                                })}
+                                <div className="space-y-3">
+                                    <div className="p-3 rounded-xl bg-surface-800/50 border border-surface-700/30 space-y-2 text-sm">
+                                        {results.registrar.name && (
+                                            <div className="flex justify-between gap-4">
+                                                <span className="text-surface-400 shrink-0">Registrar</span>
+                                                {results.registrar.url ? (
+                                                    <a href={results.registrar.url.startsWith('http') ? results.registrar.url : `https://${results.registrar.url}`} target="_blank" rel="noopener noreferrer" className="text-brand-400 hover:text-brand-300 font-mono text-xs text-right transition-colors">{results.registrar.name}</a>
+                                                ) : (
+                                                    <code className="text-surface-200 font-mono text-xs text-right">{results.registrar.name}</code>
+                                                )}
                                             </div>
-                                        </div>
+                                        )}
+                                        {results.registrar.ianaId && (
+                                            <div className="flex justify-between gap-4"><span className="text-surface-400 shrink-0">IANA ID</span><code className="text-surface-200 font-mono text-xs">{results.registrar.ianaId}</code></div>
+                                        )}
+                                        {results.registrar.registrant && (
+                                            <div className="flex justify-between gap-4"><span className="text-surface-400 shrink-0">Registrant</span><code className="text-surface-200 font-mono text-xs text-right">{results.registrar.registrant}</code></div>
+                                        )}
+                                        {results.registrar.registrantCountry && (
+                                            <div className="flex justify-between gap-4"><span className="text-surface-400 shrink-0">Country</span><code className="text-surface-200 font-mono text-xs">{results.registrar.registrantCountry}</code></div>
+                                        )}
+                                        {results.registrar.createdDate && (
+                                            <div className="flex justify-between gap-4"><span className="text-surface-400 shrink-0">Created</span><code className="text-surface-200 font-mono text-xs">{new Date(results.registrar.createdDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</code></div>
+                                        )}
+                                        {results.registrar.updatedDate && (
+                                            <div className="flex justify-between gap-4"><span className="text-surface-400 shrink-0">Updated</span><code className="text-surface-200 font-mono text-xs">{new Date(results.registrar.updatedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</code></div>
+                                        )}
+                                        {results.registrar.dnssec && (
+                                            <div className="flex justify-between gap-4">
+                                                <span className="text-surface-400 shrink-0">DNSSEC</span>
+                                                <span className={`text-xs font-semibold ${results.registrar.dnssec.toLowerCase().includes('unsigned') ? 'text-amber-400' : 'text-emerald-400'}`}>{results.registrar.dnssec}</span>
+                                            </div>
+                                        )}
+                                        {results.registrar.abuseEmail && (
+                                            <div className="flex justify-between gap-4"><span className="text-surface-400 shrink-0">Abuse Email</span><a href={`mailto:${results.registrar.abuseEmail}`} className="text-brand-400 hover:text-brand-300 font-mono text-xs transition-colors">{results.registrar.abuseEmail}</a></div>
+                                        )}
+                                        {results.registrar.abusePhone && (
+                                            <div className="flex justify-between gap-4"><span className="text-surface-400 shrink-0">Abuse Phone</span><code className="text-surface-200 font-mono text-xs">{results.registrar.abusePhone}</code></div>
+                                        )}
+                                        {results.registrar.status && (
+                                            <div className="pt-2 mt-2 border-t border-surface-700/30">
+                                                <span className="text-surface-400 text-xs block mb-2">Domain Status</span>
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {(Array.isArray(results.registrar.status) ? results.registrar.status : [results.registrar.status]).map((s, i) => {
+                                                        const label = typeof s === 'string' ? s.split(' ')[0].replace(/.*\//, '') : s;
+                                                        return <span key={i} className="px-2 py-0.5 rounded-md bg-surface-700/50 text-surface-300 text-xs font-mono">{label}</span>;
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    {/* whois.com link */}
+                                    {results.whoisUrl && (
+                                        <a href={results.whoisUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 p-3 rounded-xl bg-brand-600/10 border border-brand-500/20 text-brand-400 hover:text-brand-300 hover:bg-brand-600/15 text-sm font-medium transition-all">
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                                            View full WHOIS on whois.com
+                                        </a>
                                     )}
                                 </div>
                             ) : (
-                                <div className="p-4 rounded-xl bg-surface-800/50 border border-surface-700/30">
-                                    <p className="text-surface-400 text-sm">Registrar information not available</p>
+                                <div className="space-y-3">
+                                    <div className="p-4 rounded-xl bg-surface-800/50 border border-surface-700/30">
+                                        <p className="text-surface-400 text-sm">Registrar information not available</p>
+                                    </div>
+                                    {results.whoisUrl && (
+                                        <a href={results.whoisUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 p-3 rounded-xl bg-brand-600/10 border border-brand-500/20 text-brand-400 hover:text-brand-300 hover:bg-brand-600/15 text-sm font-medium transition-all">
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                                            View full WHOIS on whois.com
+                                        </a>
+                                    )}
                                 </div>
                             )}
                         </RecordSection>

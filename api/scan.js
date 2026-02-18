@@ -11,33 +11,50 @@ import {
 
 /**
  * Get WHOIS info: expiry date + registrar details
+ * Data fetched via WHOIS protocol (same source as whois.com)
+ * whoisUrl links to whois.com for full raw record
  */
 async function getWhoisInfo(domain) {
     try {
         const whois = await import('whois-json');
         const result = await whois.default(domain);
 
-        const expiryDate = result.expirationDate
-            ? new Date(result.expirationDate)
-            : result.registryExpiryDate
-                ? new Date(result.registryExpiryDate)
-                : result.registrarRegistrationExpirationDate
-                    ? new Date(result.registrarRegistrationExpirationDate)
-                    : null;
-
-        const registrar = {
-            name: result.registrar || result.registrarName || null,
-            url: result.registrarUrl || result.referralUrl || null,
-            ianaId: result.registrarIanaId || null,
-            createdDate: result.creationDate || result.createdDate || null,
-            updatedDate: result.updatedDate || result.lastUpdated || null,
-            dnssec: result.dnssec || null,
-            status: result.domainStatus || result.status || null,
+        // Pick first valid value from possible WHOIS field names
+        const pick = (...keys) => {
+            for (const k of keys) {
+                if (result[k]) return result[k];
+            }
+            return null;
         };
 
-        return { expiryDate, registrar };
+        const expiryRaw = pick('expirationDate', 'registryExpiryDate', 'registrarRegistrationExpirationDate', 'expiresOn', 'paid-till');
+        const expiryDate = expiryRaw ? new Date(expiryRaw) : null;
+
+        const registrar = {
+            name: pick('registrar', 'registrarName', 'sponsoringRegistrar'),
+            url: pick('registrarUrl', 'referralUrl', 'registrarURL'),
+            ianaId: pick('registrarIanaId', 'registrarIANAID'),
+            abuseEmail: pick('registrarAbuseContactEmail', 'abuseContactEmail'),
+            abusePhone: pick('registrarAbuseContactPhone', 'abuseContactPhone'),
+            createdDate: pick('creationDate', 'createdDate', 'created', 'domainRegistrationDate'),
+            updatedDate: pick('updatedDate', 'lastUpdated', 'lastModified', 'changed'),
+            registrant: pick('registrantOrganization', 'registrantName', 'orgName', 'org-name'),
+            registrantCountry: pick('registrantCountry', 'registrantStateProvince'),
+            dnssec: pick('dnssec', 'DNSSEC'),
+            status: pick('domainStatus', 'status'),
+        };
+
+        return {
+            expiryDate,
+            registrar,
+            whoisUrl: `https://www.whois.com/whois/${domain}`,
+        };
     } catch {
-        return { expiryDate: null, registrar: null };
+        return {
+            expiryDate: null,
+            registrar: null,
+            whoisUrl: `https://www.whois.com/whois/${domain}`,
+        };
     }
 }
 
@@ -67,7 +84,7 @@ async function handler(req, res) {
         checkSSL(cleanDomain),
     ]);
 
-    const { expiryDate, registrar } = whoisInfo;
+    const { expiryDate, registrar, whoisUrl } = whoisInfo;
 
     const scanData = {
         spf: dnsResults.spf,
@@ -102,6 +119,7 @@ async function handler(req, res) {
         // WHOIS
         expiryDate,
         registrar,
+        whoisUrl,
         blacklisted: blacklistResult.blacklisted,
         blacklistDetails: blacklistResult.details,
     });
