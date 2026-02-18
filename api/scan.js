@@ -9,17 +9,131 @@ import {
     successResponse,
 } from '../lib/authMiddleware.js';
 
+// Cache the IANA RDAP bootstrap data
+let rdapBootstrap = null;
+
 /**
- * Get WHOIS info: expiry date + registrar details
- * Data fetched via WHOIS protocol (same source as whois.com)
- * whoisUrl links to whois.com for full raw record
+ * Get the RDAP server URL for a given TLD from IANA bootstrap
+ */
+async function getRdapServer(tld) {
+    if (!rdapBootstrap) {
+        const res = await fetch('https://data.iana.org/rdap/dns.json');
+        if (!res.ok) return null;
+        rdapBootstrap = await res.json();
+    }
+
+    for (const entry of rdapBootstrap.services || []) {
+        const tlds = entry[0];
+        const urls = entry[1];
+        if (tlds.includes(tld) && urls.length > 0) {
+            return urls[0].replace(/\/$/, '');
+        }
+    }
+    return null;
+}
+
+/**
+ * Extract vCard field value from RDAP entity
+ */
+function getVcardField(entity, fieldName) {
+    const vcard = entity?.vcardArray?.[1];
+    if (!vcard) return null;
+    for (const field of vcard) {
+        if (field[0] === fieldName) return field[3];
+    }
+    return null;
+}
+
+/**
+ * Get WHOIS info via RDAP (HTTP-based, works on Vercel)
+ * RDAP is the modern replacement for the WHOIS protocol
  */
 async function getWhoisInfo(domain) {
+    const whoisUrl = `https://www.whois.com/whois/${domain}`;
+
+    try {
+        const tld = domain.split('.').pop().toLowerCase();
+        const rdapServer = await getRdapServer(tld);
+
+        if (rdapServer) {
+            const res = await fetch(`${rdapServer}/domain/${domain}`, {
+                headers: { Accept: 'application/rdap+json' },
+                signal: AbortSignal.timeout(10000),
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+
+                // Extract dates from events
+                let expiryDate = null;
+                let createdDate = null;
+                let updatedDate = null;
+
+                for (const ev of data.events || []) {
+                    if (ev.eventAction === 'expiration') expiryDate = ev.eventDate;
+                    if (ev.eventAction === 'registration') createdDate = ev.eventDate;
+                    if (ev.eventAction === 'last changed') updatedDate = ev.eventDate;
+                }
+
+                // Find registrar entity
+                const entities = data.entities || [];
+                const registrarEntity = entities.find(e => e.roles?.includes('registrar'));
+                const registrantEntity = entities.find(e => e.roles?.includes('registrant'));
+
+                // Extract abuse contact from registrar's sub-entities
+                let abuseEmail = null;
+                let abusePhone = null;
+                if (registrarEntity?.entities) {
+                    const abuseEntity = registrarEntity.entities.find(e => e.roles?.includes('abuse'));
+                    if (abuseEntity) {
+                        abuseEmail = getVcardField(abuseEntity, 'email');
+                        abusePhone = getVcardField(abuseEntity, 'tel');
+                    }
+                }
+
+                const registrar = {
+                    name: getVcardField(registrarEntity, 'fn') || null,
+                    url: registrarEntity?.links?.[0]?.href || null,
+                    ianaId: registrarEntity?.handle || null,
+                    abuseEmail,
+                    abusePhone,
+                    createdDate,
+                    updatedDate,
+                    registrant: getVcardField(registrantEntity, 'fn') || getVcardField(registrantEntity, 'org') || null,
+                    registrantCountry: null,
+                    dnssec: data.secureDNS?.delegationSigned ? 'signed' : 'unsigned',
+                    status: data.status || null,
+                };
+
+                return {
+                    expiryDate: expiryDate ? new Date(expiryDate) : null,
+                    registrar,
+                    whoisUrl,
+                };
+            }
+        }
+
+        // Fallback: use whois-json (raw TCP — works locally / on non-Vercel hosts)
+        return await getWhoisFallback(domain, whoisUrl);
+    } catch {
+        // Last resort fallback
+        try {
+            return await getWhoisFallback(domain, whoisUrl);
+        } catch {
+            return { expiryDate: null, registrar: null, whoisUrl };
+        }
+    }
+}
+
+/**
+ * Fallback: use whois-json (raw WHOIS over TCP)
+ * Works locally and on traditional servers, may fail on Vercel
+ */
+async function getWhoisFallback(domain, whoisUrl) {
     try {
         const whois = await import('whois-json');
         const result = await whois.default(domain);
 
-        // Pick first valid value from possible WHOIS field names
         const pick = (...keys) => {
             for (const k of keys) {
                 if (result[k]) return result[k];
@@ -28,7 +142,6 @@ async function getWhoisInfo(domain) {
         };
 
         const expiryRaw = pick('expirationDate', 'registryExpiryDate', 'registrarRegistrationExpirationDate', 'expiresOn', 'paid-till');
-        const expiryDate = expiryRaw ? new Date(expiryRaw) : null;
 
         const registrar = {
             name: pick('registrar', 'registrarName', 'sponsoringRegistrar'),
@@ -45,16 +158,12 @@ async function getWhoisInfo(domain) {
         };
 
         return {
-            expiryDate,
+            expiryDate: expiryRaw ? new Date(expiryRaw) : null,
             registrar,
-            whoisUrl: `https://www.whois.com/whois/${domain}`,
+            whoisUrl,
         };
     } catch {
-        return {
-            expiryDate: null,
-            registrar: null,
-            whoisUrl: `https://www.whois.com/whois/${domain}`,
-        };
+        return { expiryDate: null, registrar: null, whoisUrl };
     }
 }
 
