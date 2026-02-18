@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/Node.js-20+-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js" />
 </p>
 
-# 🛡️ ShieldMail — Email Security Monitoring SaaS
+# 🛡️ DomainArmor — Email Security Monitoring SaaS
 
 A production-ready **Email Security Monitoring** platform that helps you monitor the security posture of your email domains. Track **SPF**, **DMARC**, **DKIM**, **MX records**, **blacklist status**, and **domain expiry** — all from a beautiful dark-themed dashboard.
 

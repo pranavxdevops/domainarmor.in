@@ -12,7 +12,7 @@ export default function Navbar() {
                                 </svg>
                             </div>
                         </div>
-                        <span className="text-lg font-bold text-gradient">ShieldMail</span>
+                        <span className="text-lg font-bold text-gradient">DomainArmor</span>
                     </a>
 
                     {/* Tagline */}
