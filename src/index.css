@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #020617;
+    color: #e2e8f0;
+    min-height: 100vh;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0f172a;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+  }
+}
+
+@layer components {
+  /* ─── Glass Card ─────────────────────────────────── */
+  .glass-card {
+    @apply bg-surface-900/60 backdrop-blur-xl border border-surface-700/50 rounded-2xl;
+  }
+
+  /* ─── Buttons ────────────────────────────────────── */
+  .btn-primary {
+    @apply px-6 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white font-semibold 
+           rounded-xl shadow-lg shadow-brand-500/25 
+           hover:shadow-brand-500/40 hover:from-brand-500 hover:to-brand-400 
+           transition-all duration-300 
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-2.5 bg-surface-800 text-surface-200 font-semibold 
+           rounded-xl border border-surface-600 
+           hover:bg-surface-700 hover:border-surface-500 
+           transition-all duration-300;
+  }
+
+  .btn-danger {
+    @apply px-6 py-2.5 bg-red-600/20 text-red-400 font-semibold 
+           rounded-xl border border-red-600/30 
+           hover:bg-red-600/30 hover:border-red-500/50 
+           transition-all duration-300;
+  }
+
+  /* ─── Input Fields ───────────────────────────────── */
+  .input-field {
+    @apply w-full px-4 py-3 bg-surface-800/80 border border-surface-600/50 rounded-xl 
+           text-surface-100 placeholder-surface-400
+           focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 
+           transition-all duration-300;
+  }
+
+  /* ─── Score Badges ───────────────────────────────── */
+  .badge-healthy {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 text-sm font-semibold
+           bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 rounded-full;
+  }
+
+  .badge-warning {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 text-sm font-semibold
+           bg-amber-500/15 text-amber-400 border border-amber-500/20 rounded-full;
+  }
+
+  .badge-critical {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 text-sm font-semibold
+           bg-red-500/15 text-red-400 border border-red-500/20 rounded-full;
+  }
+
+  /* ─── Glow Effects ───────────────────────────────── */
+  .glow-brand {
+    box-shadow: 0 0 60px -12px rgba(99, 102, 241, 0.3);
+  }
+
+  .glow-green {
+    box-shadow: 0 0 40px -12px rgba(16, 185, 129, 0.3);
+  }
+
+  .glow-red {
+    box-shadow: 0 0 40px -12px rgba(239, 68, 68, 0.3);
+  }
+
+  /* ─── Skeleton Loader ────────────────────────────── */
+  .skeleton {
+    @apply bg-surface-700/50 rounded-lg animate-pulse;
+  }
+
+  /* ─── Status dot ─────────────────────────────────── */
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+
+  .status-dot-healthy {
+    @apply bg-emerald-400 shadow-lg shadow-emerald-400/50;
+  }
+
+  .status-dot-warning {
+    @apply bg-amber-400 shadow-lg shadow-amber-400/50;
+  }
+
+  .status-dot-critical {
+    @apply bg-red-400 shadow-lg shadow-red-400/50 animate-pulse;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-brand-400 to-brand-200 bg-clip-text text-transparent;
+  }
+
+  .bg-mesh {
+    background-image: 
+      radial-gradient(at 40% 20%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+      radial-gradient(at 80% 80%, rgba(16, 185, 129, 0.04) 0px, transparent 50%);
+  }
+}
