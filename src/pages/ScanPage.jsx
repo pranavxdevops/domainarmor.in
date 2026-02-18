@@ -397,8 +397,8 @@ export default function ScanPage() {
                                     <div className="space-y-3">
                                         {/* Status */}
                                         <div className={`p-4 rounded-xl border ${results.ssl.valid
-                                                ? 'bg-emerald-500/5 border-emerald-500/20'
-                                                : 'bg-red-500/5 border-red-500/20'
+                                            ? 'bg-emerald-500/5 border-emerald-500/20'
+                                            : 'bg-red-500/5 border-red-500/20'
                                             }`}>
                                             <div className="flex items-center gap-3 mb-3">
                                                 <div className={`w-3 h-3 rounded-full ${results.ssl.valid ? 'bg-emerald-400 shadow-lg shadow-emerald-400/50' : 'bg-red-400 shadow-lg shadow-red-400/50 animate-pulse'}`} />
@@ -431,6 +431,56 @@ export default function ScanPage() {
                             ) : (
                                 <div className="p-4 rounded-xl bg-surface-800/50 border border-surface-700/30">
                                     <p className="text-surface-400 text-sm">SSL information not available</p>
+                                </div>
+                            )}
+                        </RecordSection>
+                    </div>
+
+                    {/* ── Registrar Information ────────────── */}
+                    <div className="mt-6">
+                        <RecordSection title="Registrar Information" icon={icons.globe}>
+                            {results.registrar && (results.registrar.name || results.registrar.createdDate) ? (
+                                <div className="p-3 rounded-xl bg-surface-800/50 border border-surface-700/30 space-y-2 text-sm">
+                                    {results.registrar.name && (
+                                        <div className="flex justify-between gap-4">
+                                            <span className="text-surface-400 shrink-0">Registrar</span>
+                                            {results.registrar.url ? (
+                                                <a href={results.registrar.url.startsWith('http') ? results.registrar.url : `https://${results.registrar.url}`} target="_blank" rel="noopener noreferrer" className="text-brand-400 hover:text-brand-300 font-mono text-xs text-right transition-colors">{results.registrar.name}</a>
+                                            ) : (
+                                                <code className="text-surface-200 font-mono text-xs text-right">{results.registrar.name}</code>
+                                            )}
+                                        </div>
+                                    )}
+                                    {results.registrar.ianaId && (
+                                        <div className="flex justify-between gap-4"><span className="text-surface-400 shrink-0">IANA ID</span><code className="text-surface-200 font-mono text-xs">{results.registrar.ianaId}</code></div>
+                                    )}
+                                    {results.registrar.createdDate && (
+                                        <div className="flex justify-between gap-4"><span className="text-surface-400 shrink-0">Created</span><code className="text-surface-200 font-mono text-xs">{new Date(results.registrar.createdDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</code></div>
+                                    )}
+                                    {results.registrar.updatedDate && (
+                                        <div className="flex justify-between gap-4"><span className="text-surface-400 shrink-0">Updated</span><code className="text-surface-200 font-mono text-xs">{new Date(results.registrar.updatedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</code></div>
+                                    )}
+                                    {results.registrar.dnssec && (
+                                        <div className="flex justify-between gap-4">
+                                            <span className="text-surface-400 shrink-0">DNSSEC</span>
+                                            <span className={`text-xs font-semibold ${results.registrar.dnssec.toLowerCase().includes('unsigned') ? 'text-amber-400' : 'text-emerald-400'}`}>{results.registrar.dnssec}</span>
+                                        </div>
+                                    )}
+                                    {results.registrar.status && (
+                                        <div className="pt-2 mt-2 border-t border-surface-700/30">
+                                            <span className="text-surface-400 text-xs block mb-2">Domain Status</span>
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {(Array.isArray(results.registrar.status) ? results.registrar.status : [results.registrar.status]).map((s, i) => {
+                                                    const label = typeof s === 'string' ? s.split(' ')[0].replace(/.*\//, '') : s;
+                                                    return <span key={i} className="px-2 py-0.5 rounded-md bg-surface-700/50 text-surface-300 text-xs font-mono">{label}</span>;
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="p-4 rounded-xl bg-surface-800/50 border border-surface-700/30">
+                                    <p className="text-surface-400 text-sm">Registrar information not available</p>
                                 </div>
                             )}
                         </RecordSection>

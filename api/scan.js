@@ -10,25 +10,34 @@ import {
 } from '../lib/authMiddleware.js';
 
 /**
- * Attempt to get domain expiry date via WHOIS
+ * Get WHOIS info: expiry date + registrar details
  */
-async function getExpiryDate(domain) {
+async function getWhoisInfo(domain) {
     try {
         const whois = await import('whois-json');
         const result = await whois.default(domain);
 
-        if (result.expirationDate) {
-            return new Date(result.expirationDate);
-        }
-        if (result.registryExpiryDate) {
-            return new Date(result.registryExpiryDate);
-        }
-        if (result.registrarRegistrationExpirationDate) {
-            return new Date(result.registrarRegistrationExpirationDate);
-        }
-        return null;
+        const expiryDate = result.expirationDate
+            ? new Date(result.expirationDate)
+            : result.registryExpiryDate
+                ? new Date(result.registryExpiryDate)
+                : result.registrarRegistrationExpirationDate
+                    ? new Date(result.registrarRegistrationExpirationDate)
+                    : null;
+
+        const registrar = {
+            name: result.registrar || result.registrarName || null,
+            url: result.registrarUrl || result.referralUrl || null,
+            ianaId: result.registrarIanaId || null,
+            createdDate: result.creationDate || result.createdDate || null,
+            updatedDate: result.updatedDate || result.lastUpdated || null,
+            dnssec: result.dnssec || null,
+            status: result.domainStatus || result.status || null,
+        };
+
+        return { expiryDate, registrar };
     } catch {
-        return null;
+        return { expiryDate: null, registrar: null };
     }
 }
 
@@ -51,12 +60,14 @@ async function handler(req, res) {
     }
 
     // Run all checks in parallel
-    const [dnsResults, blacklistResult, expiryDate, sslResult] = await Promise.all([
+    const [dnsResults, blacklistResult, whoisInfo, sslResult] = await Promise.all([
         runDNSChecks(cleanDomain),
         checkBlacklist(cleanDomain),
-        getExpiryDate(cleanDomain),
+        getWhoisInfo(cleanDomain),
         checkSSL(cleanDomain),
     ]);
+
+    const { expiryDate, registrar } = whoisInfo;
 
     const scanData = {
         spf: dnsResults.spf,
@@ -88,8 +99,9 @@ async function handler(req, res) {
         soa: dnsResults.soa,
         // SSL
         ssl: sslResult,
-        // Other
+        // WHOIS
         expiryDate,
+        registrar,
         blacklisted: blacklistResult.blacklisted,
         blacklistDetails: blacklistResult.details,
     });
