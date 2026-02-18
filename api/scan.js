@@ -1,5 +1,6 @@
-import { runDNSChecks, getMXRecords, resolveIPv4 } from '../lib/dnsService.js';
+import { runDNSChecks } from '../lib/dnsService.js';
 import { checkBlacklist } from '../lib/blacklistService.js';
+import { checkSSL } from '../lib/sslService.js';
 import { calculateScore } from '../lib/scoringService.js';
 import {
     withErrorHandler,
@@ -50,11 +51,11 @@ async function handler(req, res) {
     }
 
     // Run all checks in parallel
-    const [dnsResults, blacklistResult, expiryDate, ipAddresses] = await Promise.all([
+    const [dnsResults, blacklistResult, expiryDate, sslResult] = await Promise.all([
         runDNSChecks(cleanDomain),
         checkBlacklist(cleanDomain),
         getExpiryDate(cleanDomain),
-        resolveIPv4(cleanDomain),
+        checkSSL(cleanDomain),
     ]);
 
     const scanData = {
@@ -73,11 +74,21 @@ async function handler(req, res) {
         domain: cleanDomain,
         score,
         status,
+        // Security checks
         spf: dnsResults.spf,
         dmarc: dnsResults.dmarc,
         dkim: dnsResults.dkim,
+        // DNS records
         mx: dnsResults.mx,
-        ipAddresses,
+        txt: dnsResults.txt,
+        aRecords: dnsResults.aRecords,
+        aaaaRecords: dnsResults.aaaaRecords,
+        cname: dnsResults.cname,
+        ns: dnsResults.ns,
+        soa: dnsResults.soa,
+        // SSL
+        ssl: sslResult,
+        // Other
         expiryDate,
         blacklisted: blacklistResult.blacklisted,
         blacklistDetails: blacklistResult.details,
