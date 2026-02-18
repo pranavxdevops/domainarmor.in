@@ -3,7 +3,7 @@ import api from '../api.js';
 
 /* ─── Helper: Score Ring SVG ──────────────────────────────── */
 function ScoreRing({ score, status }) {
-    const radius = 58;
+    const radius = 70;
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (score / 100) * circumference;
     const colorMap = {
@@ -14,19 +14,19 @@ function ScoreRing({ score, status }) {
     const c = colorMap[status] || colorMap.critical;
 
     return (
-        <div className="relative w-40 h-40 mx-auto">
-            <svg className="w-full h-full -rotate-90" viewBox="0 0 130 130">
-                <circle cx="65" cy="65" r={radius} fill="none" stroke="#1e293b" strokeWidth="10" />
+        <div className="relative w-48 h-48 mx-auto">
+            <svg className="w-full h-full -rotate-90" viewBox="0 0 156 156">
+                <circle cx="78" cy="78" r={radius} fill="none" stroke="#1e293b" strokeWidth="10" />
                 <circle
-                    cx="65" cy="65" r={radius} fill="none"
+                    cx="78" cy="78" r={radius} fill="none"
                     stroke={c.stroke} strokeWidth="10" strokeLinecap="round"
                     strokeDasharray={circumference} strokeDashoffset={offset}
                     style={{ transition: 'stroke-dashoffset 1s ease-out', filter: `drop-shadow(0 0 8px ${c.glow})` }}
                 />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-4xl font-bold text-white">{score}</span>
-                <span className="text-xs font-medium text-surface-400 uppercase tracking-wider">{status}</span>
+                <span className="text-5xl font-bold text-white">{score}</span>
+                <span className="text-sm font-medium text-surface-400 uppercase tracking-wider">{status}</span>
             </div>
         </div>
     );
@@ -35,21 +35,21 @@ function ScoreRing({ score, status }) {
 /* ─── Helper: Check Card ──────────────────────────────────── */
 function CheckCard({ label, passed, icon }) {
     return (
-        <div className={`glass-card p-5 flex items-center gap-4 transition-all duration-300 hover:scale-[1.02] ${passed ? 'border-emerald-500/30' : 'border-red-500/30'}`}>
-            <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-lg ${passed ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
+        <div className={`glass-card p-6 flex items-center gap-4 transition-all duration-300 hover:scale-[1.02] ${passed ? 'border-emerald-500/30' : 'border-red-500/30'}`}>
+            <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-lg ${passed ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
                 {icon}
             </div>
             <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-surface-300">{label}</p>
-                <p className={`text-sm font-semibold ${passed ? 'text-emerald-400' : 'text-red-400'}`}>
+                <p className="text-base font-medium text-surface-300">{label}</p>
+                <p className={`text-base font-semibold ${passed ? 'text-emerald-400' : 'text-red-400'}`}>
                     {passed ? 'Configured' : 'Not Found'}
                 </p>
             </div>
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${passed ? 'bg-emerald-500/20' : 'bg-red-500/20'}`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${passed ? 'bg-emerald-500/20' : 'bg-red-500/20'}`}>
                 {passed ? (
-                    <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                 ) : (
-                    <svg className="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                    <svg className="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                 )}
             </div>
         </div>
@@ -77,11 +77,11 @@ function RecordSection({ title, icon, children, badge }) {
 /* ─── Helper: Record Row ──────────────────────────────────── */
 function RecordRow({ value, index, mono = true }) {
     return (
-        <div className="flex items-center gap-3 p-3 rounded-xl bg-surface-800/50 border border-surface-700/30">
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-surface-800/50 border border-surface-700/30">
             {index !== undefined && (
                 <span className="w-6 h-6 rounded-lg bg-brand-600/20 text-brand-400 text-xs font-bold flex items-center justify-center shrink-0">{index}</span>
             )}
-            <span className={`text-sm text-surface-200 break-all ${mono ? 'font-mono' : ''}`}>{value}</span>
+            <span className={`text-base text-surface-200 break-all ${mono ? 'font-mono' : ''}`}>{value}</span>
         </div>
     );
 }
@@ -193,7 +193,7 @@ export default function ScanPage() {
 
             {/* ──── Loading Skeleton ─────────────────────────── */}
             {loading && (
-                <section className="max-w-6xl mx-auto px-4 pb-16 animate-fade-in">
+                <section className="max-w-[1600px] mx-auto px-6 lg:px-10 pb-16 animate-fade-in">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div className="lg:col-span-1">
                             <div className="glass-card p-8">
@@ -231,19 +231,19 @@ export default function ScanPage() {
 
             {/* ──── Results ──────────────────────────────────── */}
             {results && !loading && (
-                <section className="max-w-6xl mx-auto px-4 pb-20 animate-slide-up">
+                <section className="max-w-[1600px] mx-auto px-6 lg:px-10 pb-20 animate-slide-up">
                     {/* Domain header */}
                     <div className="text-center mb-8">
-                        <p className="text-surface-400 text-sm mb-1">Results for</p>
-                        <h2 className="text-2xl font-bold text-white">{results.domain}</h2>
+                        <p className="text-surface-400 text-base mb-1">Results for</p>
+                        <h2 className="text-3xl font-bold text-white">{results.domain}</h2>
                     </div>
 
                     {/* ── Score + Security Checks ────────────── */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Score Card */}
                         <div className="lg:col-span-1">
-                            <div className="glass-card p-8 text-center">
-                                <h3 className="text-sm font-semibold text-surface-400 uppercase tracking-wider mb-6">Security Score</h3>
+                            <div className="glass-card p-10 text-center">
+                                <h3 className="text-base font-semibold text-surface-400 uppercase tracking-wider mb-6">Security Score</h3>
                                 <ScoreRing score={results.score} status={results.status} />
                                 <div className="mt-6">
                                     <span className={`badge-${results.status}`}>
@@ -265,7 +265,7 @@ export default function ScanPage() {
                     </div>
 
                     {/* ── DNS Records Grid ───────────────────── */}
-                    <h3 className="text-lg font-bold text-white mt-10 mb-4 flex items-center gap-2">
+                    <h3 className="text-xl font-bold text-white mt-10 mb-5 flex items-center gap-2">
                         {icons.globe}
                         DNS Records
                     </h3>
@@ -552,7 +552,7 @@ export default function ScanPage() {
 
             {/* ──── Features (when no results) ───────────────── */}
             {!results && !loading && (
-                <section className="max-w-5xl mx-auto px-4 pt-8 pb-20">
+                <section className="max-w-6xl mx-auto px-6 lg:px-10 pt-8 pb-20">
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                         {[
                             { title: 'Security Checks', desc: 'SPF, DMARC, DKIM', icon: '🛡️' },
@@ -560,10 +560,10 @@ export default function ScanPage() {
                             { title: 'Blacklist Scan', desc: 'Real-time blacklist check', icon: '🔍' },
                             { title: 'SSL & Expiry', desc: 'Certificate & domain expiry', icon: '🔒' },
                         ].map((f, i) => (
-                            <div key={i} className="glass-card p-5 text-center group hover:border-brand-500/30 transition-all duration-300">
-                                <div className="text-2xl mb-2">{f.icon}</div>
-                                <h3 className="text-white font-semibold text-sm mb-0.5">{f.title}</h3>
-                                <p className="text-surface-400 text-xs">{f.desc}</p>
+                            <div key={i} className="glass-card p-6 text-center group hover:border-brand-500/30 transition-all duration-300">
+                                <div className="text-3xl mb-3">{f.icon}</div>
+                                <h3 className="text-white font-semibold text-base mb-1">{f.title}</h3>
+                                <p className="text-surface-400 text-sm">{f.desc}</p>
                             </div>
                         ))}
                     </div>
