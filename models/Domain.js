@@ -2,17 +2,12 @@ import mongoose from 'mongoose';
 
 const domainSchema = new mongoose.Schema(
     {
-        userId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            required: true,
-            index: true,
-        },
         domain: {
             type: String,
             required: [true, 'Domain is required'],
             trim: true,
             lowercase: true,
+            unique: true,
         },
         lastScore: {
             type: Number,
@@ -28,9 +23,6 @@ const domainSchema = new mongoose.Schema(
         timestamps: true,
     }
 );
-
-// Compound index: one user can't add the same domain twice
-domainSchema.index({ userId: 1, domain: 1 }, { unique: true });
 
 const Domain = mongoose.models.Domain || mongoose.model('Domain', domainSchema);
 

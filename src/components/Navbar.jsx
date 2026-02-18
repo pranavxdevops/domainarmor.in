@@ -1,8 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.jsx';
 
 export default function Navbar() {
-    const { user, logout } = useAuth();
     const location = useLocation();
 
     const isActive = (path) => location.pathname === path;
@@ -28,32 +26,12 @@ export default function Navbar() {
                         <Link
                             to="/dashboard"
                             className={`text-sm font-medium transition-colors ${isActive('/dashboard')
-                                    ? 'text-brand-400'
-                                    : 'text-surface-400 hover:text-surface-200'
+                                ? 'text-brand-400'
+                                : 'text-surface-400 hover:text-surface-200'
                                 }`}
                         >
                             Dashboard
                         </Link>
-
-                        <div className="h-5 w-px bg-surface-700" />
-
-                        <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-2">
-                                <div className="w-7 h-7 rounded-lg bg-brand-600/20 flex items-center justify-center">
-                                    <span className="text-xs font-bold text-brand-400">
-                                        {user?.email?.charAt(0).toUpperCase()}
-                                    </span>
-                                </div>
-                                <span className="text-sm text-surface-300 hidden sm:block">{user?.email}</span>
-                            </div>
-
-                            <button
-                                onClick={logout}
-                                className="text-sm text-surface-500 hover:text-red-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-500/10"
-                            >
-                                Logout
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>

@@ -3,7 +3,6 @@ import ScanLog from '../../models/ScanLog.js';
 import Domain from '../../models/Domain.js';
 import {
     withErrorHandler,
-    verifyAuth,
     errorResponse,
     successResponse,
 } from '../../lib/authMiddleware.js';
@@ -11,11 +10,6 @@ import {
 async function handler(req, res) {
     if (req.method !== 'GET') {
         return errorResponse(res, 405, 'Method not allowed');
-    }
-
-    const auth = verifyAuth(req);
-    if (!auth) {
-        return errorResponse(res, 401, 'Authentication required');
     }
 
     const { id } = req.query;
@@ -26,8 +20,8 @@ async function handler(req, res) {
 
     await connectDB();
 
-    // Verify domain belongs to user
-    const domain = await Domain.findOne({ _id: id, userId: auth.userId }).lean();
+    // Find domain by ID
+    const domain = await Domain.findById(id).lean();
     if (!domain) {
         return errorResponse(res, 404, 'Domain not found');
     }

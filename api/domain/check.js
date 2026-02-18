@@ -6,7 +6,6 @@ import { checkBlacklist } from '../../lib/blacklistService.js';
 import { calculateScore } from '../../lib/scoringService.js';
 import {
     withErrorHandler,
-    verifyAuth,
     errorResponse,
     successResponse,
 } from '../../lib/authMiddleware.js';
@@ -71,12 +70,6 @@ async function handler(req, res) {
         return errorResponse(res, 405, 'Method not allowed');
     }
 
-    // Auth check
-    const auth = verifyAuth(req);
-    if (!auth) {
-        return errorResponse(res, 401, 'Authentication required');
-    }
-
     const { domainId } = req.body || {};
 
     if (!domainId) {
@@ -85,8 +78,8 @@ async function handler(req, res) {
 
     await connectDB();
 
-    // Find domain and verify ownership
-    const domain = await Domain.findOne({ _id: domainId, userId: auth.userId });
+    // Find domain
+    const domain = await Domain.findById(domainId);
     if (!domain) {
         return errorResponse(res, 404, 'Domain not found');
     }
